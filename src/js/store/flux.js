@@ -1,45 +1,59 @@
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
-			demo: [
-				{
-					title: "FIRST",
-					background: "white",
-					initial: "white"
-				},
-				{
-					title: "SECOND",
-					background: "white",
-					initial: "white"
-				}
-			]
+			favorites: [],
+			peopleList: [],
+			planetsList: []
+			
 		},
 		actions: {
-			// Use getActions to call a function within a fuction
-			exampleFunction: () => {
-				getActions().changeColor(0, "green");
+			fetchPeople: async () => {
+				try {
+					const URL ="https://www.swapi.tech/api/people";
+					const response = await fetch(URL);
+					if (!response.ok) {
+						new error("Paso algo malo en el fetchPeople");
+					}
+					const body = await response.json();
+					console.log(">>DATA>>", body);
+					setStore({ peopleList: body.results});
+					return body;
+					
+				} catch (error) {
+					console.error(error);
+				}
 			},
-			loadSomeData: () => {
-				/**
-					fetch().then().then(data => setStore({ "foo": data.bar }))
-				*/
+
+			fetchPlanets: async () => {
+				try {
+					const URL = "https://www.swapi.tech/api/planets/";
+					const response = await fetch (URL);
+					if (!response.ok){
+						new error("Paso algo malo en el fetchPlanets");
+					}
+					const body = await response.json();
+					console.log("Planetas", body);
+					setStore({ planetsList: body.results });
+					return body;
+					
+				} catch (error) {
+					console.error(error);
+				}
 			},
-			changeColor: (index, color) => {
-				//get the store
+
+			setFavorites: (name) => {
 				const store = getStore();
+				setStore({favorites: [...store.favorites, name]})
 
-				//we have to loop the entire demo array to look for the respective index
-				//and change its color
-				const demo = store.demo.map((elm, i) => {
-					if (i === index) elm.background = color;
-					return elm;
-				});
-
-				//reset the global store
-				setStore({ demo: demo });
+			},
+		
+			deleteFavorites: (name) => {
+				const store = getStore();
+				setStore({favorites: [ ...store.favorites.filter( x=> x != name)  ]})
 			}
 		}
 	};
 };
 
 export default getState;
+
